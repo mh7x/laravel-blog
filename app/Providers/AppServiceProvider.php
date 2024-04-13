@@ -5,7 +5,10 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Blade;
 use App\Services\Newsletter;
+use App\Models\User;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,5 +33,13 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::unguard();
+        
+        Gate::define('admin', function (User $user) {
+            return $user->username == 'admin';
+        });
+
+        Blade::if('admin', function () {
+            return request()->user()?->can('admin');
+        });
     }
 }
